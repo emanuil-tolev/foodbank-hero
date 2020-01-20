@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form method="POST" action="/edit/{{ fb['FoodBankId'] }}">
+    {{ form.hidden_tag() }}
+    <div class="form-group"> {{ form.name.label }} {{ form.name(size=20, class="form-control") }} </div>
+    <div class="form-group"> {{ form.address.label }} {{ form.address(size=20, class="form-control") }} </div>
+    <div class="form-group"> {{ form.zipcode.label }} {{ form.zipcode(size=10, class="form-control") }} </div>
+    <div class="form-group"> {{ form.items_needed.label }} {{ form.items_needed(size=40, class="form-control") }} </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+{% endblock %}

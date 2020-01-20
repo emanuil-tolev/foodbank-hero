@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 style="text-align: center; margin-top: 0.5em; margin-bottom: 0.5em;">Welcome to Food Bank Hero!</h1>
+{% for fb in foodbanks %}
+  <div class="jumbotron">
+    <h1 class="display-4">{{ fb['Name'] }} &nbsp;&nbsp;&nbsp;</h1>
+    <p class="lead"><strong>Needs:</strong> {{ fb['ItemsNeeded'] }}</p>
+    <hr class="my-4">
+    <p>Address: {{ fb['Address'] }}, {{ fb['ZipCode'] }}</p>
+    <p>Drive over before 7pm any weekday to drop off items!</p>
+    <a class="btn btn-primary btn-lg" href="/edit/{{ fb['FoodBankId'] }}" role="button">Edit</a>
+  </div>
+{% endfor %}
+
+{% endblock %}
