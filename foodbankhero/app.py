@@ -5,8 +5,17 @@ from flask import Flask, request, render_template, g, abort, flash, redirect
 from flask_wtf import FlaskForm
 from wtforms import StringField
 from wtforms.validators import DataRequired
+from elasticapm.contrib.flask import ElasticAPM
 
 app = Flask(__name__)
+app.config['ELASTIC_APM'] = {
+  'SERVICE_NAME': 'foodbankhero',
+
+  # Set custom APM Server URL (default: http://localhost:8200)
+  'SERVER_URL': 'http://apm-server:8200',
+}
+apm = ElasticAPM(app)
+
 app.config['SECRET_KEY'] = 'verysecret'
 ZIP_CODE_PATTERN = re.compile('^([\\d]+){5}(?:-([\\d]+){4})?$')
 DATABASE = './db.db' # in docker that should end up /app/db.db
