@@ -2,6 +2,15 @@
 
 {% block content %}
 
+{% if form.errors %}
+  <h3>Errors:</h3>
+  <ul>
+  {% for field, errors in form.errors.items() %}
+    <li style="color: red">{{field}}: {{errors}}</li>
+  {% endfor %}
+  </ul>
+{% endif %}
+
 <form method="POST" action="/edit/{{ fb['FoodBankId'] }}">
     {{ form.hidden_tag() }}
     <div class="form-group"> {{ form.name.label }} {{ form.name(size=20, class="form-control") }} </div>

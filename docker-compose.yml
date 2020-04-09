@@ -44,10 +44,10 @@ services:
     depends_on: ['elasticsearch', 'apm-server']
     healthcheck:
       test: ["CMD", "curl", "--write-out", "'HTTP %{http_code}'", "--silent", "--output", "/dev/null", "http://foodbankhero:5000/"]
-      interval: 10s
+      interval: 500ms
       retries: 10
-    environment:
-      - FLASK_DEBUG=1
+    # environment:
+      # - FLASK_DEBUG=1
     volumes:
       - ./foodbankhero:/app
 

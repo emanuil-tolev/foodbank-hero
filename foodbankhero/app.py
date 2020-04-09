@@ -1,23 +1,32 @@
+import random
 import re
 import sqlite3
 
 from flask import Flask, request, render_template, g, abort, flash, redirect
 from flask_wtf import FlaskForm
-from wtforms import StringField
-from wtforms.validators import DataRequired
+from wtforms import StringField, IntegerField
+from wtforms.validators import DataRequired, Regexp
 from elasticapm.contrib.flask import ElasticAPM
+import elasticapm
 
 app = Flask(__name__)
 app.config['ELASTIC_APM'] = {
   'SERVICE_NAME': 'foodbankhero',
 
   # Set custom APM Server URL (default: http://localhost:8200)
-  'SERVER_URL': 'http://apm-server:8200',
+  'SERVER_URL': 'http://apm-server:8200'
+
+  # Use if APM Server requires a token
+  # 'SECRET_TOKEN': '',
+
+  # Set custom APM Server URL (default: http://localhost:8200)
+  # 'SERVER_URL': ''
 }
 apm = ElasticAPM(app)
 
 app.config['SECRET_KEY'] = 'verysecret'
-ZIP_CODE_PATTERN = re.compile('^([\\d]+){5}(?:-([\\d]+){4})?$')
+ZIP_CODE_PATTERN = re.compile('^[0-9]{5}(?:-[0-9]{4})?$') # re.compile('^([\\d]+){5}(?:-([\\d]+){4})?$')
+# fast: ^[0-9]{5}(?:-[0-9]{4})?$
 DATABASE = './db.db' # in docker that should end up /app/db.db
 
 
@@ -65,6 +74,12 @@ class EditForm(FlaskForm):
 def home():
     return render_template('home.html', foodbanks=query_db('select * from foodbanks'))
 
+@app.route('/flaky')
+def flaky():
+    if random.randint(0,1):
+        raise Exception('Uh oh!')
+    return render_template('home.html', foodbanks=query_db('select * from foodbanks'))
+
 @app.route('/edit/<int:foodbank_id>', methods=['POST', 'GET'])
 def edit(foodbank_id):
     fb = query_db('select * from foodbanks where FoodBankId = ?', [foodbank_id], one=True)
@@ -78,7 +93,7 @@ def edit(foodbank_id):
 
     form = EditForm(**formdata)
 
-    if form.validate_on_submit():
+    if form.validate_on_submit() and validate_zip_code(form.zipcode.data):
         upd = {}
         upd['id'] = fb['FoodBankId']
         upd['name'] = form.name.data
@@ -102,9 +117,9 @@ where FoodBankId = {id}'''.format(**upd))
     else:
         return render_template('edit.html', fb=fb, form=form)
 
-@app.route('/validate_zip_code/<zip_code>')
-def validate_zip_code(zip_code):
-    return 'Seems correct' if ZIP_CODE_PATTERN.match(zip_code) else 'Seems wrong'
+@elasticapm.capture_span()
+def validate_zip_code(zipcode):
+    return ZIP_CODE_PATTERN.match(zipcode)
     #
     # validate_zip_code('28140')
     # validate_zip_code('28104a')
