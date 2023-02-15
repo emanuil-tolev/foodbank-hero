@@ -2,4 +2,4 @@ Flask==1.0
 Flask-WTF==0.14.2
 elastic-apm[flask]==5.3.3
 psutil
-werkzeug==0.16.1
+werkzeug==2.2.3
